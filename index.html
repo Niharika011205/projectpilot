@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>ProjectPilot</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column on graph paper; the generated "lab record" sheet is the hero object, everything else supports it */
+:root {
+  --paper: #F3F5F0;
+  --sheet: #FFFFFF;
+  --grid: rgba(35, 71, 184, 0.075);
+  --ink: #18233F;
+  --ink-soft: #56607A;
+  --pen: #2347B8;
+  --pen-soft: #E6ECFB;
+  --redpen: #C93A2B;
+  --hl: #FFE45C;
+  --wa: #128C4A;
+  --line: #D6DCE7;
+  --shadow: rgba(24, 35, 63, 0.28);
+  --on-accent: #FFFFFF;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --f-hand: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1220; --sheet: #141B2D; --grid: rgba(142, 166, 255, 0.06);
+    --ink: #E5E9F4; --ink-soft: #9AA4BF; --pen: #8EA6FF; --pen-soft: #1D2742;
+    --redpen: #FF7B6B; --hl: rgba(232, 201, 58, 0.38); --wa: #15924F;
+    --line: #29324D; --shadow: rgba(0, 0, 0, 0.6); --on-accent: #0D1220;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1220; --sheet: #141B2D; --grid: rgba(142, 166, 255, 0.06);
+  --ink: #E5E9F4; --ink-soft: #9AA4BF; --pen: #8EA6FF; --pen-soft: #1D2742;
+  --redpen: #FF7B6B; --hl: rgba(232, 201, 58, 0.38); --wa: #15924F;
+  --line: #29324D; --shadow: rgba(0, 0, 0, 0.6); --on-accent: #0D1220;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font: 400 16px/1.55 var(--f-body);
+}
+.wrap {
+  max-width: 680px; margin: 0 auto;
+  padding-block: 18px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 32px;
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 8px; font: 800 20px/1 var(--f-display); }
+.brand svg { width: 26px; height: 26px; }
+.seats { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--f-mono); color: var(--ink-soft); }
+.seats .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--wa); box-shadow: 0 0 0 3px color-mix(in srgb, var(--wa) 25%, transparent); }
+
+/* hero */
+.hero { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font: 500 12px/1.4 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--pen); }
+.hero h1 { font-weight: 800; font-size: clamp(30px, 7vw, 46px); line-height: 1.05; }
+mark { background: linear-gradient(transparent 58%, var(--hl) 58% 94%, transparent 94%); color: inherit; padding: 0 0.08em; }
+.lede { color: var(--ink-soft); font-size: 17px; max-width: 58ch; }
+.steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; counter-reset: s; }
+.steps3 li { counter-increment: s; font-size: 13px; line-height: 1.35; color: var(--ink-soft); display: flex; gap: 6px; align-items: baseline; }
+.steps3 li::before { content: counter(s); font: 500 12px/1 var(--f-mono); color: var(--pen); border: 1px solid var(--pen); border-radius: 50%; min-width: 20px; height: 20px; display: inline-grid; place-items: center; }
+
+/* panels */
+.panel { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+.panel h2 { font-size: 22px; font-weight: 800; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.field > span, .field legend { font-size: 13px; font-weight: 600; color: var(--ink-soft); padding: 0; margin-bottom: 6px; }
+.field > span { margin-bottom: 0; }
+select, input[type="text"], input[type="tel"], input[type="email"] {
+  width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper); font-size: 16px;
+}
+input:focus, select:focus { border-color: var(--pen); outline: none; box-shadow: 0 0 0 3px var(--pen-soft); }
+.field .err { color: var(--redpen); font-size: 13px; min-height: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 8px 14px; font-size: 14px; cursor: pointer; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--pen); border-color: var(--pen); color: var(--on-accent); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 6px; padding: 14px 18px; min-height: 50px; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--pen); color: var(--on-accent); }
+.btn.wa { background: var(--wa); color: #FFFFFF; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn[disabled] { opacity: 0.6; cursor: progress; }
+.hint { font-size: 13px; color: var(--ink-soft); }
+.hint:empty { display: none; }
+
+/* the lab-record sheet */
+.sheet {
+  position: relative; background: var(--sheet); border: 1px solid var(--line); border-radius: 3px;
+  padding: 22px 20px 26px 66px; display: flex; flex-direction: column; gap: 18px;
+  box-shadow: 0 18px 34px -24px var(--shadow);
+  transition: opacity 0.2s;
+}
+.sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 44px; width: 4px; border-left: 1px solid var(--redpen); border-right: 1px solid var(--redpen); opacity: 0.5; }
+.sheet.busy { opacity: 0.45; }
+.sheet-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.exp-no { font: 500 12px/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--pen); }
+.hand { font: 600 21px/1 var(--f-hand); color: var(--redpen); }
+.sheet h3 { font-size: clamp(26px, 6vw, 34px); font-weight: 800; line-height: 1.08; }
+.tagline { color: var(--ink-soft); font-style: italic; margin-top: 4px; }
+.sec { display: flex; flex-direction: column; gap: 8px; }
+.sec-label { font: 500 11.5px/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--pen); }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool { font: 500 13px/1 var(--f-mono); padding: 7px 9px; border: 1px dashed var(--ink-soft); border-radius: 3px; }
+.proc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.proc li { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: baseline; }
+.proc .t { font: 500 12.5px/1.2 var(--f-mono); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.result { font-weight: 500; border-left: 3px solid var(--hl); padding-left: 10px; }
+.wow { font: 600 20px/1.2 var(--f-hand); color: var(--redpen); }
+.stamp { position: absolute; top: 16px; right: 14px; transform: rotate(6deg); font: 500 11px/1 var(--f-mono); letter-spacing: 0.14em; color: var(--redpen); border: 1.5px solid var(--redpen); padding: 5px 7px; border-radius: 3px; background: var(--sheet); }
+.grade { position: absolute; top: 10px; right: 16px; transform: rotate(-8deg); font: 600 30px/1 var(--f-hand); color: var(--redpen); }
+.lockwrap { position: relative; display: flex; flex-direction: column; gap: 18px; }
+.lockwrap.locked .lockbody { filter: blur(6px); user-select: none; pointer-events: none; }
+.lockover { position: absolute; inset: 0; display: grid; place-items: center; padding: 8px; }
+.lockcard { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 16px; max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 12px 30px -16px var(--shadow); }
+.lockcard p { font-weight: 600; }
+.badge { align-self: flex-start; font: 500 11.5px/1 var(--f-mono); letter-spacing: 0.06em; padding: 6px 8px; border-radius: 3px; background: var(--pen-soft); color: var(--pen); }
+
+/* registration + success */
+.invite { font-size: 14px; background: var(--pen-soft); border-radius: 6px; padding: 10px 12px; }
+.invite:empty { display: none; }
+.code { font: 500 28px/1 var(--f-mono); letter-spacing: 0.12em; color: var(--pen); }
+.linkrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.linkrow input { flex: 1 1 220px; min-width: 0; font: 500 13px/1 var(--f-mono); }
+.progress { display: flex; flex-direction: column; gap: 8px; }
+.bar { height: 10px; border-radius: 999px; background: var(--pen-soft); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--pen); border-radius: 999px; transition: width 0.4s; }
+.meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; color: var(--ink-soft); }
+.count { font: 500 15px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+/* leaderboard */
+.board ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.board li { display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.board li:last-child { border-bottom: 0; }
+.board .rk { font: 500 14px/1 var(--f-mono); color: var(--ink-soft); }
+.board .who { min-width: 0; }
+.board .who b { display: block; font-weight: 600; }
+.board .who span { display: block; font-size: 13px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board .n { text-align: right; font: 500 15px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.board .prize { display: block; font-size: 11px; color: var(--wa); }
+.board li.me { background: var(--pen-soft); margin: 0 -10px; padding-inline: 10px; border-radius: 6px; }
+.empty { color: var(--ink-soft); font-size: 15px; padding: 6px 0; }
+.rules { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.rules li { display: grid; grid-template-columns: 86px 1fr; gap: 10px; }
+.rules b { font: 500 12.5px/1.6 var(--f-mono); color: var(--pen); }
+
+/* organizer */
+.org { border-style: dashed; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.tile { display: flex; flex-direction: column; gap: 4px; }
+.tile b { font: 800 26px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.tile span { font-size: 12px; color: var(--ink-soft); }
+.colleges { margin: 0; padding-left: 20px; font-size: 14px; }
+
+footer { font-size: 12.5px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 480px) {
+  .row2 { grid-template-columns: 1fr; }
+  .steps3 { grid-template-columns: 1fr; }
+  .sheet { padding-left: 46px; padding-right: 16px; }
+  .sheet::before { left: 28px; }
+  .tiles { grid-template-columns: repeat(2, 1fr); }
+  .proc li { grid-template-columns: 64px 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 15 29 4 22 28l-7-8-6 5 1-8z" fill="var(--pen)"/><path d="M10 17 29 4 15 20" fill="none" stroke="var(--sheet)" stroke-width="1.6"/></svg>
+      ProjectPilot
+    </div>
+    <div class="seats" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="seatCount">Free live workshop</span></div>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow">Free · Live online · <span id="whenLabel"></span> · 60 min</p>
+    <h1>Placement season is here. Your resume needs one <mark>AI project</mark>.</h1>
+    <p class="lede">Pick your branch and goal. Get a personal AI project plan in seconds, then build it live with us in the workshop "Build Your First AI Project in 60 Minutes". No GPU, no advanced maths.</p>
+    <ol class="steps3">
+      <li>Tell us your branch, skills and goal</li>
+      <li>Get your project, written like a lab record</li>
+      <li>Reserve a seat and build it live on Sunday</li>
+    </ol>
+  </section>
+
+  <form id="gen" class="panel" novalidate>
+    <h2>Generate your project</h2>
+    <div class="row2">
+      <label class="field" for="branch"><span>Your branch</span><select id="branch"></select></label>
+      <label class="field" for="goal"><span>Career goal</span><select id="goal"></select></label>
+    </div>
+    <fieldset class="field"><legend>Skills you already have</legend><div class="chips" id="skills"></div></fieldset>
+    <fieldset class="field"><legend>What do you care about?</legend><div class="chips" id="interest"></div></fieldset>
+    <button class="btn primary" id="genBtn" type="submit">Generate my project</button>
+    <p class="hint" id="genNote" aria-live="polite"></p>
+  </form>
+
+  <article id="sheet" class="sheet" aria-live="polite"></article>
+
+  <section id="reg" class="panel"></section>
+
+  <section class="panel board">
+    <h2>Referral leaderboard</h2>
+    <ol id="board"></ol>
+    <ul class="rules">
+      <li><b>3 friends</b><span>AI Project Starter Kit: 25 more project ideas and a prompt pack</span></li>
+      <li><b>10 friends</b><span>Campus AI Ambassador certificate</span></li>
+      <li><b>Top 5</b><span>₹250 / ₹150 / ₹100 / ₹100 / ₹100. Only friends who attend live count toward prizes.</span></li>
+    </ul>
+  </section>
+
+  <section id="org" class="panel org" hidden></section>
+
+  <footer>
+    <span id="modeNote"></span>
+    <span>Concept prototype built for a growth-marketing challenge. Not affiliated with any company.</span>
+  </footer>
+</div>
+
+<script>
+const WORKSHOP = new Date("2026-11-01T19:00:00+05:30");
+const WORKSHOP_LABEL = "Sun 1 Nov, 7 PM IST";
+const ARTIFACT_URL = "";
+const PRIZES = [250, 150, 100, 100, 100];
+const BRANCHES = ["CSE", "IT", "AI & ML", "ECE", "EEE", "Mechanical", "Civil", "Other"];
+const GOALS = ["Product company", "Service company", "Core job", "Higher studies", "Startup"];
+const SKILLS = ["None yet", "Python", "Java", "C / C++", "Web dev", "Excel", "MATLAB"];
+const INTERESTS = ["Education", "Healthcare", "Agriculture", "Finance", "Entertainment", "Campus life", "Core engineering"];
+const CORE = { ECE: "energy", EEE: "solar", Mechanical: "machine", Civil: "pothole" };
+const BY_INTEREST = { Healthcare: "rx", Agriculture: "crop", Finance: "expense", Entertainment: "movie", "Campus life": "campus" };
+
+const LLM = ["Python", "Google Colab", "Free LLM API", "Streamlit"];
+const ML = ["Python", "Google Colab", "scikit-learn", "Streamlit"];
+const HF = ["Python", "Hugging Face", "Gradio", "Google Colab"];
+const st = (...pairs) => pairs.map(([min, task]) => ({ min, task }));
+const TEMPLATES = {
+  viva: { title: "AI Viva Prep Buddy", tagline: "A lab-viva coach that never gets tired", aim: "Students walk into lab vivas underprepared because faculty have no time for one-on-one practice.", tools: LLM,
+    steps: st([10, "Open Colab and get a free LLM API key"], [20, "Write a prompt that asks viva questions from your lab syllabus and grades each answer"], [20, "Wrap it in a Streamlit chat app"], [10, "Deploy free on Streamlit Community Cloud and share the link"]),
+    resume: "Built an AI viva-prep chatbot that 30+ classmates used to practise 200+ lab questions", wow: "Your classmates can use it the same night." },
+  energy: { title: "Power Theft Spotter", tagline: "Flags strange spikes in smart-meter readings", aim: "Electricity boards lose crores to meter tampering that nobody notices in time.", tools: ML,
+    steps: st([10, "Load a public smart-meter dataset into Colab"], [20, "Train an Isolation Forest to flag unusual readings"], [20, "Plot normal vs flagged readings in a Streamlit dashboard"], [10, "Deploy it and test on a new month of data"]),
+    resume: "Built an anomaly detector that flagged suspicious readings across 10,000+ smart-meter records", wow: "It ties ML to the core electrical questions interviewers ask." },
+  solar: { title: "Solar Output Predictor", tagline: "Tells a rooftop owner tomorrow's power output", aim: "Rooftop solar users can't plan their usage because output swings with the weather.", tools: ML,
+    steps: st([10, "Load a public solar-plant dataset with weather columns"], [20, "Train a regression model on temperature, cloud cover and irradiance"], [20, "Build a Streamlit page where users enter tomorrow's forecast"], [10, "Deploy and compare predictions with real readings"]),
+    resume: "Built a solar-output predictor with under 10% error on a public plant dataset", wow: "Renewables plus ML is a story every core recruiter wants to hear." },
+  machine: { title: "Machine Health Listener", tagline: "Warns before a bearing fails", aim: "Small factories lose production days to breakdowns they could have predicted from vibration data.", tools: ML,
+    steps: st([10, "Load a public bearing-vibration dataset in Colab"], [20, "Extract simple features and train a fault classifier"], [20, "Show a healthy / warning / fault meter in Streamlit"], [10, "Deploy and demo it with a test vibration file"]),
+    resume: "Built a predictive-maintenance model that classified bearing faults with 90%+ accuracy", wow: "Industry 4.0 on your resume, in an hour." },
+  pothole: { title: "Pothole Spotter", tagline: "Finds potholes in road photos", aim: "Municipal teams find potholes only after complaints pile up.", tools: HF,
+    steps: st([10, "Load a pretrained pothole-detection model from Hugging Face"], [20, "Run it on road photos from your own city"], [20, "Build a Gradio page that draws boxes around potholes"], [10, "Deploy free on Hugging Face Spaces"]),
+    resume: "Built a pothole detector that marked potholes in 100+ photos of local roads", wow: "Recruiters remember a project they can see working on their own street." },
+  placement: { title: "Placement Mock Interviewer", tagline: "A mock interview whenever you need one", aim: "Students at tier-2 and tier-3 colleges rarely get a mock technical interview before placement drives.", tools: LLM,
+    steps: st([10, "Open Colab and get a free LLM API key"], [20, "Write an interviewer prompt that asks DSA and HR questions and scores answers"], [20, "Build a Streamlit chat with a score card"], [10, "Deploy and share it in your placement group"]),
+    resume: "Built an AI mock-interview bot that ran 50+ practice interviews for classmates", wow: "You practise with it before the drive and talk about it during the drive." },
+  notes: { title: "Unit Notes Summariser", tagline: "40 pages of notes into a 1-page revision sheet", aim: "Before semester exams, students lose hours skimming long unit PDFs.", tools: LLM,
+    steps: st([10, "Set up Colab and read a PDF with PyPDF"], [20, "Prompt the LLM for key points, formulas and likely questions"], [20, "Build an upload-and-summarise page in Streamlit"], [10, "Deploy and share it in your class group"]),
+    resume: "Built an AI notes summariser that turned 300+ pages of unit notes into revision sheets", wow: "Your whole class will use it before the next internal exam." },
+  crop: { title: "Kisan Crop Doctor", tagline: "Spots crop disease from one leaf photo", aim: "Farmers lose a season's yield when leaf disease is identified too late.", tools: HF,
+    steps: st([10, "Load a pretrained plant-disease model from Hugging Face"], [20, "Test it on leaf photos and map each result to a remedy"], [20, "Build a Gradio page that answers in Telugu, Hindi or English"], [10, "Deploy free on Hugging Face Spaces"]),
+    resume: "Built a crop-disease detector covering 30+ diseases with remedies in 3 languages", wow: "Real users, real impact, and it works in local languages." },
+  expense: { title: "UPI Spend Tracker", tagline: "Sorts UPI messages into a monthly budget", aim: "Small UPI payments add up every month and nobody tracks them.", tools: LLM,
+    steps: st([10, "Collect 50 sample UPI SMS texts"], [20, "Prompt the LLM to tag each payment by category and amount"], [20, "Chart monthly spend by category in Streamlit"], [10, "Deploy and test it with your own SMS export"]),
+    resume: "Built an AI expense tracker that categorised 500+ UPI transactions with 95% accuracy", wow: "Fintech interviewers will ask you to demo it." },
+  rx: { title: "Prescription Explainer", tagline: "Explains a prescription in plain language", aim: "Many patients leave the clinic unsure how and when to take their medicines.", tools: LLM,
+    steps: st([10, "Open Colab and get a free LLM API key"], [20, "Write a careful prompt that explains dosage and timing and always says to confirm with a doctor"], [20, "Build a Streamlit page with Telugu, Hindi and English output"], [10, "Deploy and test it on sample prescriptions"]),
+    resume: "Built a multilingual AI prescription explainer tested on 50+ sample prescriptions", wow: "Healthcare plus local languages makes a memorable project." },
+  movie: { title: "Movie Mood Matcher", tagline: "Picks a Telugu or Hindi film for your mood", aim: "People spend longer scrolling OTT apps than actually watching.", tools: ["Python", "Google Colab", "Sentence Transformers", "Streamlit"],
+    steps: st([10, "Load a public movie-plots dataset"], [20, "Turn each plot into an embedding with Sentence Transformers"], [20, "Match a typed mood to the closest films in Streamlit"], [10, "Deploy and share it with your friends"]),
+    resume: "Built a semantic movie recommender over 5,000+ films using sentence embeddings", wow: "Embeddings are the core of modern AI search, and you will have built one." },
+  campus: { title: "Campus Help Desk Bot", tagline: "Answers questions from your college handbook", aim: "Juniors keep asking seniors the same questions about fees, exams and hostels.", tools: LLM,
+    steps: st([10, "Collect your college handbook and circulars as PDFs"], [20, "Split the text and have the LLM answer only from it"], [20, "Build a Streamlit chat that quotes its source"], [10, "Deploy and share it with first-years"]),
+    resume: "Built a campus FAQ chatbot that answers from 100+ pages of college circulars", wow: "That's retrieval-augmented generation, the skill AI teams hire for." },
+};
+const EXAMPLE = TEMPLATES.viva;
+
+const S = {
+  project: EXAMPLE, source: "example", input: null,
+  me: null, seats: [], contacts: 0, mode: "local",
+  db: null, sample: null, uid: null, isOwner: false, canWrite: null,
+  ref: null, picked: { skills: new Set(["Python"]), interest: "Education" },
+};
+
+const $ = (id) => document.getElementById(id);
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return el;
+}
+const put = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const use = (name) => {
+  try { return window.claude && window.claude.use ? window.claude.use(name).then((x) => x, () => null) : Promise.resolve(null); }
+  catch { return Promise.resolve(null); }
+};
+const clip = (v, n) => String(v ?? "").trim().slice(0, n);
+const pad = (n) => String(n).padStart(2, "0");
+
+/* ---------- form ---------- */
+function buildForm() {
+  for (const b of BRANCHES) $("branch").append(h("option", { value: b, text: b }));
+  for (const g of GOALS) $("goal").append(h("option", { value: g, text: g }));
+  $("branch").value = "ECE";
+  $("goal").value = "Service company";
+  for (const s of SKILLS) {
+    const c = h("button", { type: "button", class: "chip", "aria-pressed": String(S.picked.skills.has(s)), text: s });
+    c.addEventListener("click", () => {
+      const set = S.picked.skills;
+      if (s === "None yet") { set.clear(); set.add(s); }
+      else { set.delete("None yet"); set.has(s) ? set.delete(s) : set.add(s); }
+      if (!set.size) set.add("None yet");
+      for (const el of $("skills").children) el.setAttribute("aria-pressed", String(set.has(el.textContent)));
+    });
+    $("skills").append(c);
+  }
+  for (const i of INTERESTS) {
+    const c = h("button", { type: "button", class: "chip", "aria-pressed": String(S.picked.interest === i), text: i });
+    c.addEventListener("click", () => {
+      S.picked.interest = i;
+      for (const el of $("interest").children) el.setAttribute("aria-pressed", String(el.textContent === i));
+    });
+    $("interest").append(c);
+  }
+  $("gen").addEventListener("submit", generate);
+}
+
+function pickTemplate({ branch, interest, goal }) {
+  if (CORE[branch] && (interest === "Core engineering" || goal === "Core job")) return TEMPLATES[CORE[branch]];
+  if (BY_INTEREST[interest]) return TEMPLATES[BY_INTEREST[interest]];
+  if (interest === "Education") return branch === "ECE" || branch === "EEE" ? TEMPLATES.viva : TEMPLATES.notes;
+  if (interest === "Core engineering" && CORE[branch]) return TEMPLATES[CORE[branch]];
+  return TEMPLATES.placement;
+}
+
+function promptFor(i) {
+  return `You design one beginner AI project for a final-year engineering student at a tier-2 or tier-3 college in India.
+
+Student
+- Branch: ${clip(i.branch, 40)}
+- Skills: ${clip(i.skills, 120)}
+- Cares about: ${clip(i.interest, 40)}
+- Career goal: ${clip(i.goal, 40)}
+
+Rules
+- A complete beginner must be able to build it in 60 minutes in a live workshop, using free tools only (Python, Google Colab, a free LLM API tier, Hugging Face, Streamlit or Gradio). No paid APIs, no GPU training.
+- Tie it to the student's branch, interest and career goal, with a real Indian context.
+- Plain words, no jargon.
+
+Reply with only this JSON object:
+{"title": "max 5 words", "tagline": "max 10 words", "aim": "one sentence: the real problem it solves", "tools": ["3 or 4 tool names"], "steps": [{"min": 10, "task": "max 16 words"}], "resume": "one resume bullet that starts with an action verb and includes a number", "wow": "one short line on why a recruiter will remember it"}
+"steps" must have exactly 4 items whose "min" values add up to 60.`;
+}
+
+function cleanProject(r) {
+  if (!r || typeof r !== "object") return null;
+  const s = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
+  const tools = Array.isArray(r.tools) ? r.tools.map((t) => s(t, 32)).filter(Boolean).slice(0, 4) : [];
+  const steps = Array.isArray(r.steps)
+    ? r.steps.map((x) => ({ min: Math.max(5, Math.min(40, Math.round(Number(x && x.min) || 15))), task: s(x && x.task, 160) })).filter((x) => x.task).slice(0, 4)
+    : [];
+  const p = { title: s(r.title, 60), tagline: s(r.tagline, 100) || "", aim: s(r.aim, 240), tools, steps, resume: s(r.resume, 240), wow: s(r.wow, 160) || "" };
+  return p.title && p.aim && p.resume && tools.length >= 2 && steps.length === 4 ? p : null;
+}
+
+async function generate(e) {
+  e.preventDefault();
+  const input = { branch: $("branch").value, goal: $("goal").value, skills: [...S.picked.skills].join(", "), interest: S.picked.interest };
+  const btn = $("genBtn");
+  btn.disabled = true;
+  btn.textContent = "Writing your lab record…";
+  $("genNote").textContent = "";
+  $("sheet").classList.add("busy");
+  let project = null, note = "";
+  if (S.sample) {
+    try {
+      project = cleanProject(await S.sample.json(promptFor(input), { modelTier: "quick" }));
+      if (!project) note = "The AI reply came back incomplete, so this is a starter project matched to your branch.";
+    } catch (err) {
+      const code = err && err.code;
+      if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(code)) S.sample = null;
+      note = code === "rate_limited"
+        ? "Lots of requests right now. Here is a starter project for your branch; try again in a minute for an AI one."
+        : "AI generation isn't available here, so this is a starter project matched to your branch.";
+    }
+  }
+  S.source = project ? "ai" : "template";
+  S.project = project || pickTemplate(input);
+  S.input = input;
+  $("genNote").textContent = note;
+  btn.disabled = false;
+  btn.textContent = "Generate another";
+  $("sheet").classList.remove("busy");
+  renderSheet();
+  renderReg();
+  $("sheet").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ---------- sheet ---------- */
+function renderSheet() {
+  const p = S.project, el = $("sheet");
+  const locked = !S.me && S.source !== "example";
+  const branch = S.input ? S.input.branch : "ECE";
+  let t = 0;
+  const proc = h("ol", { class: "proc" }, p.steps.map((s) => {
+    const li = h("li", null, h("span", { class: "t", text: `${pad(t)}–${pad(t + s.min)} min` }), h("span", { text: s.task }));
+    t += s.min;
+    return li;
+  }));
+  const badgeText = { example: `Example · ${branch} student who cares about education`, ai: "Written by AI for you", template: "Starter project for your branch", saved: "Your project" }[S.source];
+  put(el, 
+    S.source === "example" ? h("span", { class: "stamp", text: "EXAMPLE" }) : (S.me ? h("span", { class: "grade", "aria-hidden": "true", text: "10/10 ✓" }) : null),
+    h("div", { class: "sheet-head" },
+      h("span", { class: "exp-no", text: `Experiment No. 01 · ${branch}` }),
+      h("span", { class: "hand", text: `To build: ${WORKSHOP_LABEL.split(",")[0]}` })),
+    h("span", { class: "badge", text: badgeText }),
+    h("div", null, h("h3", { text: p.title }), p.tagline ? h("p", { class: "tagline", text: p.tagline }) : null),
+    h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Aim" }), h("p", { text: p.aim })),
+    h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Apparatus required" }), h("div", { class: "tools" }, p.tools.map((x) => h("span", { class: "tool", text: x })))),
+    h("div", { class: "lockwrap" + (locked ? " locked" : "") },
+      h("div", { class: "lockbody", "aria-hidden": locked ? "true" : null },
+        h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Procedure · 60 min" }), proc),
+        h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Result · for your resume" }), h("p", { class: "result", text: p.resume })),
+        p.wow ? h("p", { class: "wow", text: p.wow }) : null),
+      locked ? h("div", { class: "lockover" }, h("div", { class: "lockcard" },
+        h("p", { text: "Reserve your free seat to unlock the 60-minute procedure and resume line, then build it live." }),
+        h("button", { class: "btn primary", type: "button", text: "Reserve my free seat", onclick: () => { $("reg").scrollIntoView({ behavior: "smooth" }); setTimeout(() => $("f-name") && $("f-name").focus(), 400); } }))) : null),
+  );
+}
+
+/* ---------- registration ---------- */
+function field(id, label, type, attrs = {}) {
+  return h("label", { class: "field", for: id }, h("span", { text: label }),
+    h("input", { id, type, name: id, ...attrs }), h("span", { class: "err", id: id + "-err" }));
+}
+
+function renderReg() {
+  const el = $("reg");
+  if (S.me) return renderSuccess(el);
+  const form = h("form", { novalidate: true, class: "panel", style: "padding:0;border:0;background:none" },
+    h("h2", { text: S.source === "example" ? "Reserve your free seat" : `Build "${S.project.title}" live` }),
+    h("p", { class: "hint", text: `${WORKSHOP_LABEL} · 60 minutes · online · free. Your seat comes with your own invite link.` }),
+    h("p", { class: "invite", id: "invite" }),
+    field("f-name", "Full name", "text", { autocomplete: "name", placeholder: "Sai Kiran" }),
+    field("f-phone", "WhatsApp number", "tel", { autocomplete: "tel", inputmode: "numeric", placeholder: "98765 43210" }),
+    field("f-email", "Email", "email", { autocomplete: "email", placeholder: "you@gmail.com" }),
+    field("f-college", "College", "text", { autocomplete: "organization", placeholder: "e.g. RVR & JC College of Engineering, Guntur" }),
+    h("button", { class: "btn primary", type: "submit", id: "regBtn", text: "Reserve my free seat" }),
+    h("p", { class: "hint", id: "regNote", "aria-live": "polite" }),
+    h("p", { class: "hint", text: "Your number and email are visible only to the organiser. The leaderboard shows your first name and college." }),
+  );
+  form.addEventListener("submit", onRegister);
+  put(el, form);
+  updateInvite();
+}
+
+function updateInvite() {
+  const el = $("invite");
+  if (!el) return;
+  if (!S.ref) { el.textContent = ""; return; }
+  const who = S.seats.find((s) => s.code === S.ref);
+  el.textContent = who ? `${clip(who.firstName, 30)} from ${clip(who.college, 60)} invited you. Reserving a seat counts toward their reward.` : `You're joining with invite code ${S.ref}.`;
+}
+
+function makeCode(firstName) {
+  const base = (firstName.toUpperCase().replace(/[^A-Z]/g, "") || "SEAT").slice(0, 5);
+  const alpha = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+  const taken = new Set(S.seats.map((s) => s.code));
+  let code;
+  do { code = base; for (let i = 0; i < 3; i++) code += alpha[Math.floor(Math.random() * alpha.length)]; } while (taken.has(code));
+  return code;
+}
+
+async function onRegister(e) {
+  e.preventDefault();
+  const v = (id) => $(id).value.trim();
+  const name = v("f-name"), phone = v("f-phone").replace(/[\s-]/g, "").replace(/^(\+91|91|0)(?=\d{10}$)/, ""), email = v("f-email"), college = v("f-college");
+  const errs = {
+    "f-name": name.length < 2 ? "Enter your name." : "",
+    "f-phone": /^[6-9]\d{9}$/.test(phone) ? "" : "Enter a 10-digit Indian mobile number.",
+    "f-email": /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "" : "Enter a valid email address.",
+    "f-college": college.length < 3 ? "Enter your college name." : "",
+  };
+  for (const [id, msg] of Object.entries(errs)) $(id + "-err").textContent = msg;
+  const first = Object.keys(errs).find((k) => errs[k]);
+  if (first) { $(first).focus(); return; }
+
+  const btn = $("regBtn");
+  btn.disabled = true; btn.textContent = "Reserving…";
+  const firstName = name.split(/\s+/)[0].slice(0, 30);
+  const code = makeCode(firstName);
+  const seat = {
+    code, firstName, college: college.slice(0, 80), branch: S.input ? S.input.branch : $("branch").value,
+    referredBy: S.ref && S.ref !== code ? S.ref : null, projectTitle: S.project.title, createdAt: Date.now(),
+  };
+  const contact = { name: name.slice(0, 80), phone, email: email.slice(0, 120), college: seat.college, at: seat.createdAt };
+  let seatId = null, note = "";
+
+  if (S.mode === "shared") {
+    try {
+      const ref = S.db.collection("seats").doc();
+      await ref.set(seat);
+      seatId = ref.id;
+      if (S.uid) {
+        try {
+          const cref = S.db.doc("contacts/" + S.uid);
+          const prev = await cref.get();
+          const regs = { ...((prev.exists && prev.data().regs) || {}), [seatId]: contact };
+          await cref.set({ regs });
+        } catch {}
+        try { await S.db.doc(`data/users/${S.uid}/profile`).set({ code, seatId, firstName, project: S.project }); } catch {}
+      }
+    } catch (err) {
+      note = err && err.code === "quota_exceeded" ? "Registrations are full right now." : "Couldn't save to the shared list, so your seat is saved in this browser only.";
+      if (err && err.code === "quota_exceeded") { btn.disabled = false; btn.textContent = "Reserve my free seat"; $("regNote").textContent = note; return; }
+      switchToLocal();
+    }
+  }
+  if (S.mode === "local") {
+    seatId = "local-" + seat.createdAt;
+    S.seats = [...S.seats, { id: seatId, ...seat }];
+    store.set("pp.seats", S.seats);
+  }
+  S.me = { code, seatId, firstName, mode: S.mode, project: S.project };
+  store.set("pp.me", S.me);
+  if (S.source !== "ai" && S.source !== "template") S.source = "saved";
+  renderAll();
+  if (note) $("regNote") && ($("regNote").textContent = note);
+  $("reg").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function inviteLink() { return (ARTIFACT_URL || location.href.split("#")[0]) + "#r-" + S.me.code; }
+
+function renderSuccess(el) {
+  const link = inviteLink();
+  const msg = `Placement season + zero AI projects on my resume? Same 😅\nI just got my personal AI project: "${S.project.title}" and we're building it LIVE in a free 60-min workshop, ${WORKSHOP_LABEL}.\nGet yours in 10 seconds 👉 ${link}`;
+  const linkInput = h("input", { type: "text", id: "f-link", readonly: true, value: link, "aria-label": "Your invite link" });
+  const copyBtn = h("button", { class: "btn ghost", type: "button", text: "Copy link" });
+  copyBtn.addEventListener("click", () => {
+    const done = () => { copyBtn.textContent = "Copied"; setTimeout(() => (copyBtn.textContent = "Copy link"), 1600); };
+    const fallback = () => { linkInput.select(); copyBtn.textContent = "Press Ctrl+C"; };
+    try { navigator.clipboard.writeText(link).then(done, fallback); } catch { fallback(); }
+  });
+  put(el, 
+    h("h2", { text: `You're in, ${S.me.firstName}. Seat confirmed.` }),
+    h("div", { class: "meta" }, h("span", { text: `${WORKSHOP_LABEL} · online · 60 min` }), h("span", { class: "count", id: "countdown" })),
+    h("p", { class: "hint", text: "The joining link and reminders go to your WhatsApp 2 hours and 10 minutes before the session." }),
+    h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Your invite code" }), h("span", { class: "code", text: S.me.code })),
+    h("div", { class: "linkrow" }, linkInput, copyBtn),
+    h("a", { class: "btn wa", href: "https://wa.me/?text=" + encodeURIComponent(msg), target: "_blank", rel: "noopener" },
+      h("span", { "aria-hidden": "true", text: "➤" }), "Share on WhatsApp"),
+    h("div", { class: "progress", id: "progress" }),
+    h("p", { class: "hint", id: "regNote", "aria-live": "polite" }),
+    (S.isOwner || S.mode === "local") ? h("button", { class: "btn ghost", type: "button", text: "Register another student (demo)", onclick: resetDemo }) : null,
+  );
+  updateProgress();
+  tick();
+}
+
+function updateProgress() {
+  const el = $("progress");
+  if (!el || !S.me) return;
+  const n = S.seats.filter((s) => s.referredBy === S.me.code).length;
+  const goal = n < 3 ? 3 : 10;
+  const reward = n < 3 ? "AI Project Starter Kit" : n < 10 ? "Campus AI Ambassador certificate" : "every reward unlocked";
+  put(el, 
+    h("div", { class: "meta" },
+      h("span", { text: n >= 10 ? "All rewards unlocked" : `${n} of ${goal} friends joined → ${reward}` }),
+      h("span", { class: "count", text: `${n} referral${n === 1 ? "" : "s"}` })),
+    h("div", { class: "bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(goal), "aria-valuenow": String(Math.min(n, goal)) },
+      h("i", { style: `width:${Math.min(100, (n / goal) * 100)}%` })),
+    n >= 3 ? h("p", { class: "hint", text: "Starter Kit unlocked. It arrives on WhatsApp with your joining link." }) : null,
+  );
+}
+
+async function resetDemo() {
+  if (S.mode === "shared" && S.uid) { try { await S.db.doc(`data/users/${S.uid}/profile`).delete(); } catch {} }
+  S.me = null; store.set("pp.me", null);
+  S.project = EXAMPLE; S.source = "example"; S.input = null;
+  $("genBtn").textContent = "Generate my project";
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------- leaderboard / counts ---------- */
+function referralCounts() {
+  const byCode = new Map(S.seats.map((s) => [s.code, s]));
+  const counts = new Map();
+  for (const s of S.seats) if (s.referredBy && byCode.has(s.referredBy) && s.referredBy !== s.code) counts.set(s.referredBy, (counts.get(s.referredBy) || 0) + 1);
+  return { byCode, counts };
+}
+
+function renderBoard() {
+  const { byCode, counts } = referralCounts();
+  const top = [...counts].sort((a, b) => b[1] - a[1] || (byCode.get(a[0]).createdAt || 0) - (byCode.get(b[0]).createdAt || 0)).slice(0, 10);
+  const el = $("board");
+  if (!top.length) {
+    put(el, h("li", { class: "empty", style: "display:block" }, S.seats.length
+      ? "No referrals yet. Share your invite link and the first friend who joins puts you at #1."
+      : "The leaderboard fills as people reserve seats through each other's invite links."));
+    return;
+  }
+  put(el, ...top.map(([code, n], i) => {
+    const s = byCode.get(code);
+    return h("li", { class: S.me && S.me.code === code ? "me" : null },
+      h("span", { class: "rk", text: `#${i + 1}` }),
+      h("span", { class: "who" }, h("b", { text: clip(s.firstName, 30) + (S.me && S.me.code === code ? " (you)" : "") }), h("span", { text: clip(s.college, 80) })),
+      h("span", { class: "n" }, `${n}`, i < PRIZES.length ? h("span", { class: "prize", text: `₹${PRIZES[i]} if they attend` }) : null));
+  }));
+}
+
+function renderCount() {
+  const n = S.seats.length;
+  $("seatCount").textContent = n ? `${n} seat${n === 1 ? "" : "s"} reserved` : "Free live workshop";
+}
+
+function renderOrg() {
+  const el = $("org");
+  if (!S.isOwner) { el.hidden = true; return; }
+  el.hidden = false;
+  const n = S.seats.length;
+  const viaRef = S.seats.filter((s) => s.referredBy).length;
+  const direct = n - viaRef;
+  const k = direct ? (viaRef / direct).toFixed(2) : "—";
+  const byCollege = new Map();
+  for (const s of S.seats) { const c = clip(s.college, 80) || "Unknown"; byCollege.set(c, (byCollege.get(c) || 0) + 1); }
+  const top = [...byCollege].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  put(el, 
+    h("h2", { text: "Organiser view" }),
+    h("p", { class: "hint", text: "Only you see this panel. Target: 500 seats by Sunday at about ₹4 per seat." }),
+    h("div", { class: "tiles" },
+      h("div", { class: "tile" }, h("b", { text: String(n) }), h("span", { text: "seats reserved" })),
+      h("div", { class: "tile" }, h("b", { text: String(viaRef) }), h("span", { text: "came via a referral" })),
+      h("div", { class: "tile" }, h("b", { text: String(direct) }), h("span", { text: "came direct" })),
+      h("div", { class: "tile" }, h("b", { text: k }), h("span", { text: "referred per direct seat (K)" }))),
+    top.length ? h("div", { class: "sec" }, h("span", { class: "sec-label", text: "Top colleges" }),
+      h("ol", { class: "colleges" }, top.map(([c, m]) => h("li", { text: `${c} · ${m}` })))) : null,
+    S.mode === "shared" ? h("p", { class: "hint", text: `Private contact records stored for ${S.contacts} student${S.contacts === 1 ? "" : "s"}.` }) : null,
+  );
+}
+
+function renderMode() {
+  $("modeNote").textContent = S.mode === "shared"
+    ? "Live: seats and the leaderboard are shared with everyone who opens this page."
+    : "Demo build: seats and the leaderboard are saved in this browser. Use \"Register another student (demo)\" to try the referral loop.";
+}
+
+function renderAll() { renderCount(); renderSheet(); renderReg(); renderBoard(); renderOrg(); renderMode(); }
+function onSeats() { renderCount(); renderBoard(); renderOrg(); updateProgress(); updateInvite(); }
+
+function tick() {
+  const el = $("countdown");
+  if (!el) return;
+  const ms = WORKSHOP - Date.now();
+  if (ms <= 0) { el.textContent = "Session time"; return; }
+  const d = Math.floor(ms / 864e5), hr = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4);
+  el.textContent = `Starts in ${d}d ${pad(hr)}h ${pad(m)}m`;
+}
+
+function readRef() {
+  const m = /^#r-([A-Za-z0-9]{4,12})$/.exec(location.hash);
+  S.ref = m ? m[1].toUpperCase() : null;
+  updateInvite();
+}
+
+function switchToLocal() {
+  S.mode = "local";
+  if (S.unsub) { S.unsub(); S.unsub = null; }
+  S.seats = store.get("pp.seats") || [];
+  renderMode();
+}
+
+/* ---------- boot ---------- */
+$("whenLabel").textContent = WORKSHOP_LABEL;
+buildForm();
+readRef();
+window.addEventListener("hashchange", readRef);
+S.seats = store.get("pp.seats") || [];
+S.me = store.get("pp.me");
+if (S.me && S.me.mode === "local" && S.me.project) { S.project = S.me.project; S.source = "saved"; }
+else S.me = null;
+renderAll();
+setInterval(tick, 30000);
+
+(async () => {
+  const [db, user, sample] = await Promise.all([use("db"), use("user"), use("sample")]);
+  S.sample = sample;
+  if (user) {
+    try { S.uid = await user.id(); S.isOwner = await user.isOwner(); S.canWrite = await user.can("data.write"); } catch {}
+  }
+  if (!db || S.canWrite === false) { renderAll(); return; }
+  S.db = db; S.mode = "shared"; S.seats = []; S.me = null;
+  S.project = EXAMPLE; S.source = "example";
+  if (S.uid) {
+    try {
+      const p = await db.doc(`data/users/${S.uid}/profile`).get();
+      if (p.exists) {
+        const d = p.data();
+        S.me = { code: d.code, seatId: d.seatId, firstName: d.firstName, mode: "shared" };
+        if (d.project) { S.project = d.project; S.source = "saved"; }
+      }
+    } catch {}
+  }
+  renderAll();
+  S.unsub = db.collection("seats").limit(1000).onSnapshot(
+    (snap) => { S.seats = snap.docs.map((d) => ({ id: d.id, ...d.data() })); onSeats(); },
+    () => { switchToLocal(); renderAll(); });
+  if (S.isOwner) {
+    db.collection("contacts").limit(1000).onSnapshot(
+      (snap) => { S.contacts = snap.docs.reduce((n, d) => n + Object.keys((d.data() || {}).regs || {}).length, 0); renderOrg(); },
+      () => {});
+  }
+})();
+</script>
+</body>
+</html>
