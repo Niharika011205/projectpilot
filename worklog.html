@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>500 Seats AI Worklog</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single reading column; each entry is a four-step lab sequence (prompt, output, change, final) down a red margin line */
+:root {
+  --paper: #F3F5F0;
+  --sheet: #FFFFFF;
+  --ink: #18233F;
+  --ink-soft: #56607A;
+  --pen: #2347B8;
+  --pen-soft: #E6ECFB;
+  --redpen: #C93A2B;
+  --line: #D6DCE7;
+  --code-bg: #F5F7FB;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1220; --sheet: #141B2D; --ink: #E5E9F4; --ink-soft: #9AA4BF;
+    --pen: #8EA6FF; --pen-soft: #1D2742; --redpen: #FF7B6B; --line: #29324D; --code-bg: #10172A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1220; --sheet: #141B2D; --ink: #E5E9F4; --ink-soft: #9AA4BF;
+  --pen: #8EA6FF; --pen-soft: #1D2742; --redpen: #FF7B6B; --line: #29324D; --code-bg: #10172A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--f-body); }
+.wrap {
+  max-width: 760px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 40px;
+}
+h1, h2 { font-family: var(--f-display); font-weight: 800; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+p, ul { margin: 0; }
+a { color: var(--pen); }
+a:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.eyebrow { font: 500 12px/1.4 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--pen); }
+header { display: flex; flex-direction: column; gap: 14px; }
+header h1 { font-size: clamp(32px, 6vw, 44px); line-height: 1.05; }
+.lede { color: var(--ink-soft); font-size: 17px; max-width: 62ch; }
+.links { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 15px; }
+.entry { background: var(--sheet); border: 1px solid var(--line); border-radius: 4px; padding: 26px 22px 28px; display: flex; flex-direction: column; gap: 22px; }
+.entry-head { display: flex; flex-direction: column; gap: 6px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.entry h2 { font-size: 26px; line-height: 1.15; }
+.steps { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--redpen); display: flex; flex-direction: column; gap: 20px; }
+.steps > li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font: 500 11.5px/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--pen); }
+.quote { font: 400 13.5px/1.6 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.changes { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.final { font-weight: 500; background: var(--pen-soft); border-radius: 4px; padding: 12px 14px; }
+.takeaway { font: 700 22px/1.3 var(--f-display); border-top: 2px solid var(--ink); padding-top: 18px; text-wrap: balance; }
+footer { font-size: 13px; color: var(--ink-soft); }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">AI worklog · NxtWave Growth Associate challenge</p>
+    <h1>How AI shaped the plan and the prototype</h1>
+    <p class="lede">Three iterations from building the “500 seats on ₹2,000” campaign. Each one shows the prompt, what the AI produced, what changed and why, and what shipped.</p>
+    <p class="links">
+      <a href="./">ProjectPilot prototype (live)</a>
+    </p>
+  </header>
+
+  <article class="entry">
+    <div class="entry-head">
+      <p class="eyebrow">Example 1 · Growth plan</p>
+      <h2>From a long plan to a 5-slide deck</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="label">Prompt</span>
+        <p class="quote">Act as a world-class Growth Marketing Strategist… Budget Allocation (₹2,000): an innovative breakdown beyond standard social ads… Multi-Channel Acquisition Plan… 7-Day Campaign Timeline: day-by-day execution strategy from launch to workshop day.</p></li>
+      <li><span class="label">AI output</span>
+        <p>A full plan of roughly 3,000 words: persona, a 5-line budget table, 6 channels with seat targets, a day-by-day timeline, 3 prototype concepts, reflection notes and a video script.</p></li>
+      <li><span class="label">What I changed or rejected</span>
+        <ul class="changes">
+          <li>The submission allows 5 slides, so each slide got one idea. Persona and insight merged; budget and channels became one table with a seat target per row.</li>
+          <li>Rejected spending the budget on Meta ads. At an estimated ₹15–40 per student lead, ₹2,000 buys 50–130 seats, not 500.</li>
+          <li>Labelled the ad cost as an estimate and the funnel numbers as targets, because the campaign has not run.</li>
+          <li>Corrected the company name to NxtWave everywhere.</li>
+        </ul></li>
+      <li><span class="label">Final output</span>
+        <p class="final">A 5-slide deck: the ₹4-per-seat constraint, the audience insight, a results-based budget, the 7-day timeline and the working asset.</p></li>
+    </ol>
+  </article>
+
+  <article class="entry">
+    <div class="entry-head">
+      <p class="eyebrow">Example 2 · The AI inside the product</p>
+      <h2>Making the project generator demo-proof</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="label">Prompt</span>
+        <p class="quote">You design beginner AI projects for final-year Indian engineering students… buildable in 60 minutes… Return ONLY valid JSON: {title, tagline, problem, tools, steps, resume_bullet, wow_factor}</p></li>
+      <li><span class="label">AI output</span>
+        <p>A working first prompt and schema, with nothing checking the reply. A model can return 3 or 6 steps, suggest paid tools, or send broken JSON, and one failed call during a live demo breaks the whole flow.</p></li>
+      <li><span class="label">What I changed or rejected</span>
+        <ul class="changes">
+          <li>Added hard rules: free tools only, no GPU training, exactly 4 steps that add up to 60 minutes, a real Indian context.</li>
+          <li>Added a check that rejects incomplete replies, plus 12 hand-written starter projects matched by branch and interest as a fallback.</li>
+          <li>Reframed the output as a lab record (Aim, Apparatus, Procedure, Result), a format every engineering student already knows.</li>
+          <li>Rejected a resume-scoring tool as the prototype: a low score discourages students, and uploading resumes raises privacy concerns.</li>
+        </ul></li>
+      <li><span class="label">Final output</span>
+        <p class="final">The generator always returns a usable project in seconds: written by AI when available, a matched starter project otherwise.</p></li>
+    </ol>
+  </article>
+
+  <article class="entry">
+    <div class="entry-head">
+      <p class="eyebrow">Example 3 · Prototype build</p>
+      <h2>From build spec to a tested, working page</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="label">Prompt</span>
+        <p class="quote">Pick the single best concept and provide a full code snippet/specification or step-by-step instructions on how to build it using prompt-based web builders.</p></li>
+      <li><span class="label">AI output</span>
+        <p>A Lovable + Supabase spec: database schema, an edge function that calls an LLM, and invite links in the form <code>?ref=CODE</code>.</p></li>
+      <li><span class="label">What I changed or rejected</span>
+        <ul class="changes">
+          <li>Built the demo as a hosted page reviewers can open with no setup. The Supabase spec stays as the production path.</li>
+          <li>The host drops query strings, so invite links moved from <code>?ref=CODE</code> to <code>#r-CODE</code>.</li>
+          <li>Rejected a full WhatsApp Business API bot: Meta verification and template approval take longer than 7 days. Used free one-tap share links instead.</li>
+          <li>Phone numbers and emails are readable only by the organiser; the leaderboard shows first name and college.</li>
+          <li>A scripted test of the whole loop (Sai registers, Priya joins through Sai’s link, Sai moves to #1) caught the word “null” printing on the project sheet. Fixed and retested.</li>
+        </ul></li>
+      <li><span class="label">Final output</span>
+        <p class="final">ProjectPilot: a live project generator with seat registration, WhatsApp invites, a referral leaderboard and an organiser view.</p></li>
+    </ol>
+  </article>
+
+  <p class="takeaway">AI was fastest at first drafts and code. The changes that mattered came from limits it didn’t know about: a 5-slide cap, how the host handles links, what students recognise, and what breaks in a live demo.</p>
+
+  <footer>Built with Claude (Anthropic) as the AI collaborator.</footer>
+</div>
+</body>
+</html>
